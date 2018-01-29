@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+	<struts>
+		<package name="struts" namespace="/"  extends="struts-default">
+			
+			<!-- 拦截器栈 -->
+			<interceptors>
+			<!-- 自定义的拦截器 -->
+				<interceptor name="myInterceptor" class="com.ithc.interceptor.MyInteceptor"/>
+				<interceptor-stack name="myStack">
+					<interceptor-ref name="myInterceptor"/>
+					<interceptor-ref name="defaultStack"/>
+				</interceptor-stack>
+			</interceptors>
+			
+			<!-- 配置全局的结果视图 -->
+			<global-results>
+				<result name="login" type="redirect">login.jsp</result>
+			</global-results>
+		
+			<!-- 配置验证码 -->		
+			<action name="vCode" class="com.ithc.action.Vcode"/>
+			
+			<!-- 登入模块 -->
+			<action name="user_*" class="sys_UserAction" method="{1}">
+				<result name="index">index.jsp</result>
+				<!-- <result name="login" type="redirect">login.jsp</result> -->
+				
+				<result name="updatePassword">updatePassword.jsp</result>
+				<!-- 引入拦截器 -->
+				<interceptor-ref name="myInterceptor">
+					<!-- 设置哪些请求不拦截  -->	
+					<param name="excludeMethods">login,checkCode,register</param>
+				</interceptor-ref>
+				
+				<!-- 引入默认的拦截器 -->
+				<interceptor-ref name="defaultStack"/>
+			</action>
+			
+			<!--客户模块  -->
+			<action name="customer_*" class="customerAction" method="{1}">
+				<result name="findByPage">jsp/customer/list.jsp</result>
+				<result name="initAddUI">jsp/customer/add.jsp</result>
+				<result name="initUpdate">jsp/customer/edit.jsp</result>
+				<result name="update" type="chain">customer_findByPage</result>
+				<result name="delete" type="chain">customer_findByPage</result>
+				<result name="findByLevel">jsp/totals/level.jsp</result>
+				<result name="findBySource">jsp/totals/sources.jsp</result>
+				<!-- 引入拦截器栈 -->
+				<interceptor-ref name="myStack"/>
+			</action>
+			
+			<!--base_dict 数据字典模块 -->
+			<action name="dict_*" class="base_DictAction" method="{1}">
+				<!-- 引入拦截器栈 -->
+				<interceptor-ref name="myStack"/>
+			</action>
+			
+			<!-- 联系人 -->
+			<action name="linkman_*" class="linkManAction" method="{1}">
+				<result name="findByPage">jsp/linkman/list.jsp</result>	
+				<result name="initAddUI">jsp/linkman/add.jsp</result>
+				<result name="initUpdate">jsp/linkman/edit.jsp</result>
+				<result name="update" type="chain">linkman_initUpdate</result>
+				<result name="delete" type="chain">linkman_findByPage</result>
+				<!-- 引入拦截器栈 -->
+				<interceptor-ref name="myStack"/>
+			</action>
+			
+			<!-- 拜访模块 -->
+			<action name="visit_*" class="visitAction" method="{1}">
+				<result name="findByPage">jsp/visit/list.jsp</result>
+				<result name="initAddUI">jsp/visit/add.jsp</result>
+				
+				<!-- 引入拦截器栈 -->
+				<interceptor-ref name="myStack"/>
+			</action>
+			
+		</package>
+	</struts>
